@@ -1,10 +1,6 @@
-- make it results/share or add a permalink
+- make it 'results/share' or add a permalink
 
-- 𩶗 doesn't display - it is in CJK Extensions - switched encodings, still need to update server properly
-
-- lower ad rate on pc, or change pc ad to a banner?
-
-- should show latest 100 dots, not the easiest 100 by my_rank
+- Mention Zipf's Law
 
 - more history pg stats
     - % of japanese you can read
@@ -12,8 +8,10 @@
     	- could even make into graphs (you are here)         
     - time spent per question, total
     - max questions answered
+    - 'level stats' 5/60 JLPT N3 etc.
 
 #TODO - BUGS
+    - can go to tests that don't exist (empty tests)
     - crazy prediction bug from minimize fn leading to /0 error ... re. images
         - probably needs a gradient when t <= 0 rather than a wall. Causes differentiability issues
         - https://www.reddit.com/r/LearnJapanese/comments/eq380w/made_an_app_that_tests_your_kanji_level_in_30/fes4muo/
@@ -25,6 +23,7 @@
     
 --------------------------
 Low Prio:
+- side banner ads on pc test
 - rebuffer tests when opened in history to redis - save lots of sql calls (only bother if needed) - could also just up the linger time in redis - needs a new timestamp for 'old' tests (on creation?)
 - ask whether to continue or to do a new test
 ? switch away from using params?
@@ -34,7 +33,7 @@ Low Prio:
 - track user devices in testlog
 - shorten queries 'loads(current_app.config['SESSION_REDIS'].get('TestMaterial'),db.metadata,db.session)' -> lred('TestMaterial')? (more readable)
 - change bounds to use percentiles
-    - make bounds shrink more with more data
+    - make bounds shrink more with more data (how to determine these bounds? can i use existing fit solution?)
 - lower # of calls to redis where viable (looks like redis stores it on the same box so little point)
 - trim the req list further?
 - switch to a slightly better ML algorithm (model family) allowing assymetries (non-sigmoid?)
@@ -51,11 +50,6 @@ Low Prio:
     - learn to rank code done w/ online learning with the SQL dumps? or daily?
         
 Bugs:
-    - Slow start up/wake up crashes many times before starting up
-        - error msg 1: H12 "request timeout" 503 
-        - CRITICAL WORKER TIMEOUT
-        - SOLN: ... nothing run 'now' on startup.
-    - SIGINT crash? Not sure if this still occurs
 
 PR
     - medium blog post about it ... or just stuff into the github.

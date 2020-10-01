@@ -75,7 +75,8 @@ def test():
                 "start_time" : datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')})
         
         session['QuestionLog'] = pd.DataFrame(columns=['testmaterialid','score'], dtype='int64')
-
+        session['last_touched'] = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+        
         current_app.config['SESSION_REDIS'].incr('cur_testlog_id')
     elif int(score) == -1:
         # Flag to just continue a test
@@ -99,6 +100,14 @@ def test():
                        left_on=session['QuestionLog'].testmaterialid.astype(int), \
                        right_on='id')
     
+    #Get some history to show (do this before sort)
+    oldquestions = history[:100]
+    
+    rightanswers = oldquestions[oldquestions['score']==1]
+    rightanswers = [(r.my_rank, r.kanji) for i, r in rightanswers.iterrows()]
+    wronganswers = oldquestions[oldquestions['score']==0]
+    wronganswers = [(r.my_rank, r.kanji) for i, r in wronganswers.iterrows()]
+        
     #Get updated statistics and next question
     
     xdata = []
@@ -109,6 +118,8 @@ def test():
         #For the first question, ask a random kanji (for data gathering purposes)
         newquestion = pd.read_msgpack(current_app.config['SESSION_REDIS'].get('TestMaterial')).sample().iloc[0]
     else:
+               
+        #Resort by my_rank for faster iter
         history = history.sort_values(by=['my_rank'], ascending=True)
 
         for i, r in history.iterrows():
@@ -174,14 +185,7 @@ def test():
                 return "Holy crap!! You actually answered every kanji. I don't really expect anyone to maneage this so I don't have anything ready.... uhh, check your <a href='/t/"+session['TestLog'].id+"'>results</a> and tweet them to me! Damn... good job!"
                 
         newquestion = pd.read_msgpack(current_app.config['SESSION_REDIS'].get('TestMaterial'))[pd.read_msgpack(current_app.config['SESSION_REDIS'].get('TestMaterial'))['my_rank']==x].iloc[0]
-    
-    #Get some history to show
-    oldquestions = history[:100]
-    
-    rightanswers = oldquestions[oldquestions['score']==1]
-    rightanswers = [(r.my_rank, r.kanji) for i, r in rightanswers.iterrows()]
-    wronganswers = oldquestions[oldquestions['score']==0]
-    wronganswers = [(r.my_rank, r.kanji) for i, r in wronganswers.iterrows()]
+
     
     #Find a sensible max x value
     xmax = min(int(math.ceil((max(oldquestions['my_rank'], default=0) + 250) / 400) * 500), int(current_app.config['GRAPH_MAX_X']))
